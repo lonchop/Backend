@@ -8,20 +8,11 @@ from db.schemas.user import user_schema, users_schema
 from db.client import db_client
 from bson import ObjectId
 
+from typing import List
+
 
 router = APIRouter(prefix="/users", tags=["users"],
                    responses={404: {"message": "No encontrado"}})
-
-# router.add_middleware(
-#     CORSMiddleware,
-#     # Especifica los orígenes permitidos, por ejemplo ["http:/localhost:3000"]
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     # Especifica los métodos HTTP permitidos, por ejemplo ["GET", "POST"]
-#     allow_methods=["*"],
-#     # Especifica las cabeceras permitidas, por ejemplo ["Authorization"]
-#     allow_headers=["*"],
-# )
 
 
 # class User(BaseModel):  # Con BaseModel me ahorro el tener que hacer la class tradicional de python
@@ -41,10 +32,7 @@ router = APIRouter(prefix="/users", tags=["users"],
 #         self.age = age
 
 
-# users_list = []
-
-
-@router.get("", response_model=list[User])
+@router.get("", response_model=List[User])
 async def users():
     return users_schema(db_client.users.find())
 
@@ -82,7 +70,8 @@ async def user(user: User):
     try:
         user_dict = dict(user)
         del user_dict["id"]
-        db_client.users.find_one_and_replace({"_id": ObjectId(user.id)}, user_dict)
+        db_client.users.find_one_and_replace(
+            {"_id": ObjectId(user.id)}, user_dict)
 
     except:
         return {"No ha encontrado el usuario para actualizarlo"}
